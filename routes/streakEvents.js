@@ -74,34 +74,6 @@ router.post('/', async function(req, res, next) {
 
   res.json({ status: 200, data: streakData });
 });
-router.post('/:id/events', async function(req, res, next) {
-  const { id } = req.params;
-  const event = req.body;
-  const streak = await models.Streak.findOne(
-    { _id: ObjectId(id) },
-  ).exec();
-
-  const newStreakEvent = {
-    ...event,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  await models.Streak.updateOne(
-    { _id: ObjectId(id) },
-    {
-      events: [
-        ...(streak.events || []),
-        newStreakEvent,
-      ],
-    }
-  );
-
-  res.json({
-    status: 200,
-    data: { streak: [...streak.events, newStreakEvent] }
-  });
-});
 
 // UPDATE
 router.put('/:id', function(req, res, next) {
