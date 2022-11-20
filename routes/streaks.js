@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const {ObjectId} = require('mongodb');
 const router = express.Router();
 
 const streakEventSchema = new mongoose.Schema({
@@ -29,17 +30,19 @@ const models = {
 
 // GET
 router.get('/', async function(req, res, next) {
-  const { ids = [] } = req.query;
-  const streakIds = Array.isArray(ids) ? ids : JSON.parse(ids);
-  console.log(ids, Array.isArray(streakIds));
-
-  const streaks = await models.Streak.find();
+  const { ids } = req.query;
+  const streakIds = ids
+    ? Array.isArray(ids) ? ids : JSON.parse(ids)
+    : undefined;
+  const streaks = await models.Streak.find({
+    ...streakIds ? { _id: { $in: streakIds.map(id => ObjectId(id)) } } : {},
+  });
 
   console.log({ streaks });
 
   res.json({
     status: 200,
-    message: `GET ALL STREAKS, ids: ${ids}`
+    data: { streaks }
   });
 });
 router.get('/:id', function(req, res, next) {
